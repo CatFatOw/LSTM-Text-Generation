@@ -22,5 +22,19 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           test -n "$HF_TOKEN" || (echo "HF_TOKEN secret is missing. Add it in Settings -> Secrets and variables -> Actions." && exit 1)
+          mkdir -p /tmp/hf-space
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='__pycache__' \
+            --exclude='uploaded_weights' \
+            --exclude='models/*.pth' \
+            ./ /tmp/hf-space/
+          cd /tmp/hf-space
+          git init -b main
+          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git add .
+          git commit -m "Deploy Space"
           git remote add space https://CatFatOw123:${HF_TOKEN}@huggingface.co/spaces/CatFatOw123/Anna_Karenina_Text_Generator
-          git push space main
+          git push --force space main

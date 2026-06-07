@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 uploaded_weights/
+models/*.pth
 vocab.json
 word_to_int.json
 int_to_word.json

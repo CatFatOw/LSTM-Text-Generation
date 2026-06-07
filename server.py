@@ -14,6 +14,8 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent
 BUNDLED_MODEL_PATH = ROOT / "models" / "LSTM_Annie.pth"
 DOWNLOAD_MODEL_PATH = Path("/Users/michaelwu/Downloads/LSTM_Annie.pth")
+HF_MODEL_REPO_ID = os.environ.get("HF_MODEL_REPO_ID", "CatFatOw123/Anna_Karenina_Model")
+HF_MODEL_FILENAME = os.environ.get("HF_MODEL_FILENAME", "LSTM_Annie.pth")
 BUNDLED_OUTPUT_PATH = ROOT / "output.txt"
 DOWNLOAD_OUTPUT_PATH = Path("/Users/michaelwu/Downloads/output.txt")
 UPLOAD_DIR = ROOT / "uploaded_weights"
@@ -33,7 +35,21 @@ def default_model_path() -> Path:
     for path in (BUNDLED_MODEL_PATH, DOWNLOAD_MODEL_PATH):
         if path.exists():
             return path
-    return BUNDLED_MODEL_PATH
+
+    try:
+        from huggingface_hub import hf_hub_download
+
+        return Path(
+            hf_hub_download(
+                repo_id=HF_MODEL_REPO_ID,
+                filename=HF_MODEL_FILENAME,
+                token=os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN"),
+            )
+        )
+    except Exception as exc:
+        raise FileNotFoundError(
+            f"Could not find a local model file or download {HF_MODEL_REPO_ID}/{HF_MODEL_FILENAME}: {exc}"
+        ) from exc
 
 
 def active_model_path() -> Path:

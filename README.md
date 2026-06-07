@@ -94,10 +94,17 @@ https://huggingface.co/spaces/CatFatOw123/Anna_Karenina_Text_Generator
 
 ## Model mode
 
-The checkpoint at `models/LSTM_Annie.pth` contains a three-layer LSTM state dict
-with a 13,000-word vocabulary, 128-dimensional embeddings, and a 128-unit hidden
-size. If that bundled model is missing, the server also checks
-`/Users/michaelwu/Downloads/LSTM_Annie.pth` for local development.
+The checkpoint contains a three-layer LSTM state dict with a 13,000-word
+vocabulary, 128-dimensional embeddings, and a 128-unit hidden size. The server
+loads the model in this order:
+
+1. A user-uploaded checkpoint.
+2. `models/LSTM_Annie.pth` if present locally.
+3. `/Users/michaelwu/Downloads/LSTM_Annie.pth` for local development.
+4. `hf_hub_download("CatFatOw123/Anna_Karenina_Model", "LSTM_Annie.pth")`.
+
+If the Hugging Face model repo is private, add an `HF_TOKEN` secret to the Space
+settings too. Public model repos do not need a Space token for download.
 
 You can upload a different `.pth`, `.pt`, or `.bin` checkpoint from the website.
 Uploaded checkpoints are stored locally in `uploaded_weights/`, which is ignored
