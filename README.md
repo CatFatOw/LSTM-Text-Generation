@@ -77,6 +77,21 @@ or static-only app.
 Free CPU Basic hardware should be enough for this small LSTM, though generation
 may take a few seconds and the Space can sleep when unused.
 
+### Automatic GitHub to Hugging Face deploy
+
+This repo includes `.github/workflows/deploy-to-huggingface.yml`. To enable it:
+
+1. Create a Hugging Face access token with write access.
+2. In GitHub, open this repo's `Settings` -> `Secrets and variables` -> `Actions`.
+3. Add a repository secret named `HF_TOKEN`.
+4. Re-run the workflow or push to `main`.
+
+The workflow pushes this repo to:
+
+```text
+https://huggingface.co/spaces/CatFatOw123/Anna_Karenina_Text_Generator
+```
+
 ## Model mode
 
 The checkpoint at `models/LSTM_Annie.pth` contains a three-layer LSTM state dict
