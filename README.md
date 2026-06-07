@@ -1,6 +1,8 @@
-# Annie Word Generator
+# Anna Karenina Word Generator
 
 A small local website for generating book-style passages from a prompt.
+
+The model description shown in the app notes that the generator uses an LSTM trained for 15 epochs on an A100 GPU to replicate the language and cadence of _Anna Karenina_.
 
 ## Run
 
@@ -21,10 +23,10 @@ To use real model generation, install `torch` and `numpy`, then add one of these
 ```json
 {
   "word_to_int": {
-    "annie": 42
+    "anna": 42
   },
   "int_to_word": {
-    "42": "annie"
+    "42": "anna"
   }
 }
 ```

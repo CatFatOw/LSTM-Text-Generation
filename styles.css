@@ -201,7 +201,8 @@ button {
   font-weight: 760;
 }
 
-.upload-box {
+.upload-box,
+.model-card {
   margin-top: 2px;
   padding-top: 20px;
   display: grid;
@@ -209,11 +210,16 @@ button {
   border-top: 1px solid rgba(36, 31, 26, 0.12);
 }
 
-.upload-box p {
+.upload-box p,
+.model-card p {
   margin: 6px 0 0;
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+.model-card h2 {
+  font-size: 1.45rem;
 }
 
 .upload-controls {

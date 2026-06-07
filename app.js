@@ -16,7 +16,7 @@ let lastGeneratedText = "";
 const demoWords = [
   "the", "lantern", "chapter", "house", "remembered", "softly", "garden",
   "window", "letter", "river", "evening", "voice", "secret", "paper",
-  "almost", "again", "where", "Annie", "stood", "before", "door", "silver",
+  "almost", "again", "where", "Anna", "stood", "before", "door", "silver",
   "quiet", "promise", "inside", "morning", "road", "watching", "story",
   "name", "long", "little", "world", "turned", "away", "light", "found",
   "between", "until", "dream", "said", "knew", "old", "room", "held"
@@ -63,7 +63,7 @@ function formatGeneratedText(text) {
 
 function demoGenerate(prompt, length, temperature) {
   const seed = prompt.toLowerCase().split(/\s+/).filter(Boolean);
-  const words = seed.length ? [...seed] : ["annie"];
+  const words = seed.length ? [...seed] : ["anna"];
   const punctuation = [".", ",", "", "", "", "?", "", ";"];
   const temperatureBias = Math.max(1, Math.round(5 / Number(temperature)));
 

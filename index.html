@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Annie Word Generator</title>
+    <title>Anna Karenina Word Generator</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
@@ -12,7 +12,7 @@
         <div class="masthead">
           <div>
             <p class="eyebrow">Book language model</p>
-            <h1 id="page-title">Annie Word Generator</h1>
+            <h1 id="page-title">Anna Karenina</h1>
           </div>
           <div class="status" id="model-status" data-mode="checking">
             <span class="status-dot" aria-hidden="true"></span>
@@ -59,6 +59,15 @@
           </div>
           <p class="upload-message" id="upload-message" role="status"></p>
         </form>
+
+        <section class="model-card" aria-labelledby="model-title">
+          <p class="eyebrow">Model notes</p>
+          <h2 id="model-title">LSTM replica</h2>
+          <p>
+            This generator uses an LSTM trained for 15 epochs on an A100 GPU to
+            replicate the language and cadence of <cite>Anna Karenina</cite>.
+          </p>
+        </section>
       </section>
 
       <section class="output-panel" aria-labelledby="output-title">

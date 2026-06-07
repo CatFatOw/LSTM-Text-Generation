@@ -170,7 +170,7 @@ def sample(model: Any, prompt: str, length: int = 200, temperature: float = 1.0)
 
 
 def demo_sample(prompt: str, length: int) -> str:
-    words = [word for word in prompt.lower().split() if word] or ["annie"]
+    words = [word for word in prompt.lower().split() if word] or ["anna"]
     bank = [
         "lantern",
         "chapter",
@@ -211,7 +211,7 @@ def demo_sample(prompt: str, length: int) -> str:
         if len(words) % 21 == 0:
             next_word += choice([".", ".", ",", "?", ";"])
         if random() < 0.03:
-            next_word = "Annie"
+            next_word = "Anna"
         words.append(next_word)
 
     return " ".join(words)
@@ -344,7 +344,7 @@ def main() -> None:
     if server is None:
         raise OSError("No available local port found between 8000 and 8010.")
 
-    print(f"Annie Word Generator running at http://127.0.0.1:{port}")
+    print(f"Anna Karenina Word Generator running at http://127.0.0.1:{port}")
     if MODEL_ERROR:
         print(f"Demo mode: {MODEL_ERROR}")
     server.serve_forever()
