@@ -11,8 +11,10 @@ from typing import Any
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_MODEL_PATH = Path("/Users/michaelwu/Downloads/LSTM_Annie.pth")
-DEFAULT_OUTPUT_PATH = Path("/Users/michaelwu/Downloads/output.txt")
+BUNDLED_MODEL_PATH = ROOT / "models" / "LSTM_Annie.pth"
+DOWNLOAD_MODEL_PATH = Path("/Users/michaelwu/Downloads/LSTM_Annie.pth")
+BUNDLED_OUTPUT_PATH = ROOT / "output.txt"
+DOWNLOAD_OUTPUT_PATH = Path("/Users/michaelwu/Downloads/output.txt")
 UPLOAD_DIR = ROOT / "uploaded_weights"
 ACTIVE_MODEL_POINTER = UPLOAD_DIR / "active_checkpoint.txt"
 SEQ_LEN = 100
@@ -23,7 +25,14 @@ DEVICE = "cpu"
 WORD_TO_INT: dict[str, int] = {}
 INT_TO_WORD: dict[int, str] = {}
 MODEL_ERROR = ""
-ACTIVE_MODEL_PATH = DEFAULT_MODEL_PATH
+ACTIVE_MODEL_PATH = BUNDLED_MODEL_PATH
+
+
+def default_model_path() -> Path:
+    for path in (BUNDLED_MODEL_PATH, DOWNLOAD_MODEL_PATH):
+        if path.exists():
+            return path
+    return BUNDLED_MODEL_PATH
 
 
 def active_model_path() -> Path:
@@ -33,7 +42,7 @@ def active_model_path() -> Path:
             path = Path(saved)
             if path.exists():
                 return path
-    return DEFAULT_MODEL_PATH
+    return default_model_path()
 
 
 def format_generated_text(text: str) -> str:
@@ -80,8 +89,10 @@ def load_vocab() -> tuple[dict[str, int], dict[int, str]]:
         int_to_word = {int(k): v for k, v in json.loads(int_path.read_text()).items()}
         return word_to_int, int_to_word
 
-    if DEFAULT_OUTPUT_PATH.exists():
-        lines = DEFAULT_OUTPUT_PATH.read_text(errors="replace").splitlines()
+    for output_path in (BUNDLED_OUTPUT_PATH, DOWNLOAD_OUTPUT_PATH):
+        if not output_path.exists():
+            continue
+        lines = output_path.read_text(errors="replace").splitlines()
         try:
             word_index = lines.index("Mapping the word to int") + 1
             int_index = lines.index("Mapping the int to word") + 1
@@ -89,7 +100,7 @@ def load_vocab() -> tuple[dict[str, int], dict[int, str]]:
             int_to_word = {int(k): v for k, v in ast.literal_eval(lines[int_index]).items()}
             return word_to_int, int_to_word
         except (ValueError, SyntaxError, IndexError) as exc:
-            raise ValueError(f"Could not parse vocabulary from {DEFAULT_OUTPUT_PATH}: {exc}") from exc
+            raise ValueError(f"Could not parse vocabulary from {output_path}: {exc}") from exc
 
     return {}, {}
 

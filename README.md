@@ -1,6 +1,9 @@
 # Anna Karenina Word Generator
 
-Access the website here: https://catfatow.github.io/Anna-Karenina-Text-Generation/
+Code repository: https://github.com/CatFatOw/Anna-Karenina-Text-Generation
+
+Note: the Python/Torch generator must run on a Python server. A static GitHub
+Pages URL can show frontend files, but it cannot run the LSTM model by itself.
 
 A local web app for generating book-style passages inspired by _Anna Karenina_.
 The site asks for a prompt, then produces a formatted manuscript-style passage
@@ -27,6 +30,12 @@ print(generate(model.to(device), "Anna and the prince", top_k=10, length=300, te
 
 ## Access the website
 
+Install dependencies:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
 Run the local server:
 
 ```bash
@@ -44,14 +53,18 @@ available port from `8001` through `8010` and prints the URL in the terminal.
 
 ## Model mode
 
-The checkpoint at `/Users/michaelwu/Downloads/LSTM_Annie.pth` contains a three-layer LSTM state dict with a 13,000-word vocabulary, 128-dimensional embeddings, and a 128-unit hidden size.
+The checkpoint at `models/LSTM_Annie.pth` contains a three-layer LSTM state dict
+with a 13,000-word vocabulary, 128-dimensional embeddings, and a 128-unit hidden
+size. If that bundled model is missing, the server also checks
+`/Users/michaelwu/Downloads/LSTM_Annie.pth` for local development.
 
 You can upload a different `.pth`, `.pt`, or `.bin` checkpoint from the website.
 Uploaded checkpoints are stored locally in `uploaded_weights/`, which is ignored
 by Git so large model files are not pushed to GitHub.
 
-To use real model generation, install `torch` and `numpy`, then add one of these
-vocabulary formats to this folder:
+Real generation needs `torch`, `numpy`, the checkpoint, and a vocabulary mapping.
+The repo includes `requirements.txt` for installing Torch/Numpy and can load
+`vocab.json` directly. The expected vocabulary format is:
 
 ```json
 {
@@ -64,7 +77,8 @@ vocabulary formats to this folder:
 }
 ```
 
-Save that as `vocab.json`, or save the two mappings separately as `word_to_int.json` and `int_to_word.json`.
+Save that as `vocab.json`, or save the two mappings separately as
+`word_to_int.json` and `int_to_word.json`.
 
 If those JSON files are missing, the server also tries to parse the printed
 training output at `/Users/michaelwu/Downloads/output.txt`, as long as it
@@ -72,7 +86,8 @@ contains the `Mapping the word to int` and `Mapping the int to word` sections.
 
 Without those files, the app runs in demo mode so the website remains usable.
 
-On this machine, the Torch-enabled Python is:
+On this machine, if Anaconda Python does not have Torch, use the Torch-enabled
+Python:
 
 ```bash
 /usr/local/bin/python3 server.py
