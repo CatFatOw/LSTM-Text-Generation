@@ -12,17 +12,36 @@ const weightsInput = document.querySelector("#weights");
 const weightsButton = document.querySelector("#weights-button");
 const uploadMessage = document.querySelector("#upload-message");
 const examplePrompt = document.querySelector("#example-prompt");
+const pageTitle = document.querySelector("#page-title");
+const modelTitle = document.querySelector("#model-title");
+const modelDescription = document.querySelector("#model-description");
+const checkpointNote = document.querySelector("#checkpoint-note");
+const bookTabs = Array.from(document.querySelectorAll(".book-tab"));
 
 let lastGeneratedText = "";
+let currentBook = "anna";
+let statusByBook = {};
 
-const demoWords = [
-  "the", "lantern", "chapter", "house", "remembered", "softly", "garden",
-  "window", "letter", "river", "evening", "voice", "secret", "paper",
-  "almost", "again", "where", "Anna", "stood", "before", "door", "silver",
-  "quiet", "promise", "inside", "morning", "road", "watching", "story",
-  "name", "long", "little", "world", "turned", "away", "light", "found",
-  "between", "until", "dream", "said", "knew", "old", "room", "held"
-];
+const books = {
+  anna: {
+    title: "Anna Karenina",
+    bodyClass: "theme-anna",
+    modelTitle: "Anna Karenina LSTM",
+    checkpoint: "LSTM_Annie.pth",
+    example: "Anna and the prince",
+    description: "A society novel model tuned toward drawing rooms, glances, family tension, and Tolstoy's restless interior cadence.",
+    demoWords: ["princess", "vronsky", "levin", "drawing", "room", "smile", "carriage", "letter", "heart", "dolly", "anna", "prince", "silence", "love", "moscow"]
+  },
+  war: {
+    title: "The War of the Worlds",
+    bodyClass: "theme-war",
+    modelTitle: "War of the Worlds LSTM",
+    checkpoint: "war_lstm.pth",
+    example: "the martians attacked, bringing desctruction and death along its wake.",
+    description: "A science-fiction invasion model built around Martians, cylinders, smoke, heat-rays, London roads, and planetary dread.",
+    demoWords: ["martians", "cylinder", "woking", "heat", "ray", "smoke", "tripod", "london", "earth", "pit", "red", "weed", "destruction", "death", "darkness"]
+  }
+};
 
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (char) => ({
@@ -64,8 +83,9 @@ function formatGeneratedText(text) {
 }
 
 function demoGenerate(prompt, length, temperature) {
+  const demoWords = books[currentBook].demoWords;
   const seed = prompt.toLowerCase().split(/\s+/).filter(Boolean);
-  const words = seed.length ? [...seed] : ["anna"];
+  const words = seed.length ? [...seed] : [currentBook === "war" ? "martians" : "anna"];
   const punctuation = [".", ",", "", "", "", "?", "", ";"];
   const temperatureBias = Math.max(1, Math.round(5 / Number(temperature)));
 
@@ -97,23 +117,40 @@ async function updateStatus() {
     const response = await fetch("/api/status");
     if (!response.ok) throw new Error("Status unavailable");
     const status = await response.json();
-    modelStatus.dataset.mode = status.ready ? "ready" : "demo";
-    modelStatus.querySelector("span:last-child").textContent = status.ready ? "LSTM ready" : "Demo mode";
-    if (status.checkpoint) {
-      uploadMessage.textContent = `Active checkpoint: ${status.checkpoint}`;
-    }
+    statusByBook = status.books || {};
+    renderBookState();
   } catch {
     modelStatus.dataset.mode = "demo";
     modelStatus.querySelector("span:last-child").textContent = "Static demo";
   }
 }
 
+function renderBookState() {
+  const book = books[currentBook];
+  const status = statusByBook[currentBook] || {};
+  document.body.classList.remove("theme-anna", "theme-war");
+  document.body.classList.add(book.bodyClass);
+  pageTitle.textContent = book.title;
+  modelTitle.textContent = book.modelTitle;
+  modelDescription.textContent = book.description;
+  examplePrompt.textContent = `Example: ${book.example}`;
+  checkpointNote.innerHTML = `Default checkpoint: <strong>${book.checkpoint}</strong>`;
+  modelStatus.dataset.mode = status.ready ? "ready" : "demo";
+  modelStatus.querySelector("span:last-child").textContent = status.ready ? "LSTM ready" : "Demo mode";
+  uploadMessage.textContent = status.checkpoint ? `Active checkpoint: ${status.checkpoint}` : "";
+  bookTabs.forEach((tab) => {
+    const active = tab.dataset.book === currentBook;
+    tab.classList.toggle("is-active", active);
+    tab.setAttribute("aria-selected", String(active));
+  });
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const prompt = promptInput.value.trim();
   const length = Number(lengthInput.value) || 300;
-  const temperature = Number(temperatureInput.value) || 0.8;
-  const topK = Number(topKInput.value) || 10;
+  const temperature = Number(temperatureInput.value) || 0.3;
+  const topK = Number(topKInput.value) || 3;
   if (!prompt) return;
 
   generateButton.disabled = true;
@@ -123,7 +160,7 @@ form.addEventListener("submit", async (event) => {
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt, length, temperature, top_k: topK })
+      body: JSON.stringify({ book: currentBook, prompt, length, temperature, top_k: topK })
     });
     if (!response.ok) throw new Error("Backend unavailable");
     const data = await response.json();
@@ -154,6 +191,7 @@ weightsForm.addEventListener("submit", async (event) => {
 
   const body = new FormData();
   body.append("weights", file);
+  body.append("book", currentBook);
 
   try {
     const response = await fetch("/api/upload-weights", {
@@ -174,8 +212,18 @@ weightsForm.addEventListener("submit", async (event) => {
   }
 });
 
+bookTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    currentBook = tab.dataset.book;
+    promptInput.value = "";
+    renderText("");
+    output.innerHTML = '<p class="placeholder">Your generated passage will appear here after you enter a prompt.</p>';
+    renderBookState();
+  });
+});
+
 examplePrompt.addEventListener("click", () => {
-  promptInput.value = "Anna and the prince";
+  promptInput.value = books[currentBook].example;
   promptInput.focus();
 });
 

@@ -1,30 +1,38 @@
 ---
-title: Anna Karenina Text Generator
+title: Book LSTM Text Generator
 colorFrom: pink
 colorTo: purple
 sdk: docker
 pinned: false
 ---
 
-# Anna Karenina Word Generator
+# Book LSTM Text Generator
 
 Code repository: https://github.com/CatFatOw/Anna-Karenina-Text-Generation
 
 Note: the Python/Torch generator must run on a Python server. A static GitHub
 Pages URL can show frontend files, but it cannot run the LSTM model by itself.
 
-A local web app for generating book-style passages inspired by _Anna Karenina_.
-The site asks for a prompt, then produces a formatted manuscript-style passage
-using either the trained LSTM backend or a built-in demo generator when model
-dependencies are not available.
+A local web app for generating book-style passages from multiple trained LSTM
+models. The site asks for a prompt, then produces a formatted manuscript-style
+passage using either the selected trained LSTM backend or a built-in demo
+generator when model dependencies are not available.
 
-The app describes the model as an LSTM trained for 15 epochs on an A100 GPU to
-replicate the language and cadence of _Anna Karenina_.
+Current tabs:
 
-The default generation settings mirror this call:
+- _Anna Karenina_
+- _The War of the Worlds_
+
+The default Anna generation settings mirror this call:
 
 ```python
-print(generate(model.to(device), "Anna and the prince", top_k=10, length=300, temperature=0.8))
+print(generate(model.to(device), "Anna and the prince", top_k=3, length=300, temperature=0.3))
+```
+
+The default War of the Worlds generation settings mirror this call:
+
+```python
+print(generate(model.to(device), "the martians attacked, bringing desctruction and death along its wake.", top_k=3, length=300, temperature=0.3))
 ```
 
 ## Features
@@ -70,8 +78,8 @@ or static-only app.
 3. Upload or push this repository to the Space.
 4. Hugging Face will build the included `Dockerfile`.
 5. The app runs on port `7860` and loads:
-   - `models/LSTM_Annie.pth`
    - `vocab.json`
+   - `war_vocab.json`
    - dependencies from `requirements.txt`
 
 Free CPU Basic hardware should be enough for this small LSTM, though generation
@@ -94,14 +102,16 @@ https://huggingface.co/spaces/CatFatOw123/Anna_Karenina_Text_Generator
 
 ## Model mode
 
-The checkpoint contains a three-layer LSTM state dict with a 13,000-word
-vocabulary, 128-dimensional embeddings, and a 128-unit hidden size. The server
-loads the model in this order:
+Both checkpoints use a three-layer LSTM with 128-dimensional embeddings and a
+128-unit hidden size. Anna uses a 13,000-token vocabulary. War of the Worlds uses
+a 7,249-token vocabulary.
+
+For each book, the server loads the model in this order:
 
 1. A user-uploaded checkpoint.
-2. `models/LSTM_Annie.pth` if present locally.
-3. `/Users/michaelwu/Downloads/LSTM_Annie.pth` for local development.
-4. `hf_hub_download("CatFatOw123/Anna_Karenina_Model", "LSTM_Annie.pth")`.
+2. A matching local `models/*.pth` file if present.
+3. The matching `/Users/michaelwu/Downloads/*.pth` file for local development.
+4. `hf_hub_download(...)` from the configured Hugging Face model repo.
 
 If the Hugging Face model repo is private, add an `HF_TOKEN` secret to the Space
 settings too. Public model repos do not need a Space token for download.
@@ -109,7 +119,7 @@ settings too. Public model repos do not need a Space token for download.
 Important: the GitHub Actions `HF_TOKEN` secret only deploys code to Hugging
 Face. If `CatFatOw123/Anna_Karenina_Model` is private, the running Space also
 needs its own `HF_TOKEN` secret in the Hugging Face Space settings so
-`hf_hub_download` can fetch `LSTM_Annie.pth`.
+`hf_hub_download` can fetch private checkpoints.
 
 You can upload a different `.pth`, `.pt`, or `.bin` checkpoint from the website.
 Uploaded checkpoints are stored locally in `uploaded_weights/`, which is ignored
@@ -117,7 +127,7 @@ by Git so large model files are not pushed to GitHub.
 
 Real generation needs `torch`, `numpy`, the checkpoint, and a vocabulary mapping.
 The repo includes `requirements.txt` for installing Torch/Numpy and can load
-`vocab.json` directly. The expected vocabulary format is:
+`vocab.json` and `war_vocab.json` directly. The expected vocabulary format is:
 
 ```json
 {
