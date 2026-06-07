@@ -1,5 +1,7 @@
 # Anna Karenina Word Generator
 
+Access the website here: https://catfatow.github.io/Anna-Karenina-Text-Generation/
+
 A local web app for generating book-style passages inspired by _Anna Karenina_.
 The site asks for a prompt, then produces a formatted manuscript-style passage
 using either the trained LSTM backend or a built-in demo generator when model
